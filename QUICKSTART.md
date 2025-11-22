@@ -176,10 +176,10 @@ Check the `examples/` folder for:
 
 ## Support
 
-- 📚 [Full Documentation](https://github.com/yourusername/HumanTyping)
-- 🐛 [Report Issues](https://github.com/yourusername/HumanTyping/issues)
-- 💬 [Discussions](https://github.com/yourusername/HumanTyping/discussions)
+- 📚 [Full Documentation](https://github.com/Lax3n/HumanTyping)
+- 🐛 [Report Issues](https://github.com/Lax3n/HumanTyping/issues)
+- 💬 [Discussions](https://github.com/Lax3n/HumanTyping/discussions)
 
 ---
 
-**Built with ❤️ and probabilities by the open-source community.**
+**Built with ❤️ and maths.**
