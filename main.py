@@ -1,6 +1,6 @@
 import argparse
 import sys
-from src.simulation import run_monte_carlo, demo_single_run
+from humantyping.simulation import run_monte_carlo, demo_single_run
 
 def main():
     parser = argparse.ArgumentParser(description="Keyboard Typing Simulation via Markov Chains")

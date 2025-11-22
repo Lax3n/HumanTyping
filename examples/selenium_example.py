@@ -6,7 +6,7 @@ import os
 # Add parent directory to path to import src
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.integration import HumanTyper
+from humantyping.integration import HumanTyper
 
 def main():
     print("Launching Chrome...")

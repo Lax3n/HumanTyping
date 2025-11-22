@@ -1,8 +1,47 @@
 # HumanTyping 🤖⌨️
 
+
+[![PyPI version](https://badge.fury.io/py/humantyping.svg)](https://badge.fury.io/py/humantyping)
+[![Tests](https://github.com/Lax3n/HumanTyping/actions/workflows/tests.yml/badge.svg)](https://github.com/Lax3n/HumanTyping/actions/workflows/tests.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **The most realistic keyboard typing simulator** based on Markov Chains and stochastic processes.
 
 HumanTyping models authentic human typing behavior with unprecedented accuracy, making automated typing indistinguishable from real users.
+
+---
+
+## ⚡ Quick Start (Playwright)
+
+```bash
+# Install
+pip install -e .[playwright]
+```
+
+```python
+from playwright.async_api import async_playwright
+from humantyping import HumanTyper
+import asyncio
+
+async def main():
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=False)
+        page = await browser.new_page()
+        await page.goto("https://google.com")
+        
+        typer = HumanTyper(wpm=70)  # Create typer
+        
+        search_box = page.locator("[name='q']")
+        await search_box.click()
+        await typer.type(search_box, "realistic typing!")  # Type like a human!
+        
+        await browser.close()
+
+asyncio.run(main())
+```
+
+📚 **[See More Examples →](./examples/)** | 🚀 **[Full Guide →](./QUICKSTART.md)**
 
 ---
 
@@ -44,11 +83,49 @@ The system maintains both a **mental cursor** (where the user thinks they are) a
 
 ## 📦 Installation
 
-This project uses [uv](https://github.com/astral-sh/uv) for dependency management.
+### Option 1: Install from PyPI (Recommended) 🌟
+
+**Once published to PyPI:**
 
 ```bash
-# Install dependencies
-uv sync
+# Basic installation
+pip install humantyping
+
+# With Playwright support
+pip install humantyping[playwright]
+
+# With Selenium support
+pip install humantyping[selenium]
+
+# With both
+pip install humantyping[playwright,selenium]
+```
+
+### Option 2: Install from GitHub Releases
+
+```bash
+# Install latest release
+pip install https://github.com/Lax3n/HumanTyping/releases/latest/download/humantyping-1.0.0-py3-none-any.whl
+```
+
+### Option 3: Install from Source (Development)
+
+```bash
+# Clone the repository
+git clone https://github.com/Lax3n/HumanTyping.git
+cd HumanTyping
+
+# Install in editable mode
+pip install -e .[playwright]
+
+# Or with uv (recommended for development)
+uv sync --extra playwright
+```
+
+### Verify Installation
+
+```bash
+python -c "from humantyping import HumanTyper; print('✓ Installation successful!')"
 ```
 
 ---
@@ -92,10 +169,12 @@ Computation Time    : 2.1456 s
 
 ### Playwright (Async)
 
+**The easiest way to add realistic typing to your Playwright scripts:**
+
 ```python
 import asyncio
 from playwright.async_api import async_playwright
-from src.integration import HumanTyper
+from humantyping import HumanTyper  # Import from the package!
 
 async def main():
     async with async_playwright() as p:
@@ -104,18 +183,24 @@ async def main():
         await page.goto("https://example.com")
         
         # Create typer with custom WPM
-        human = HumanTyper(wpm=70)
+        typer = HumanTyper(wpm=70)
         
         # Type realistically into any input field
         search_box = page.locator("input[name='search']")
         await search_box.click()
-        await human.type_async(search_box, "How to type like a human?")
+        await typer.type(search_box, "How to type like a human?")
         
         await browser.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+
+**That's it!** Just 3 lines of code:
+1. Import `HumanTyper`
+2. Create an instance: `typer = HumanTyper(wpm=70)`
+3. Type: `await typer.type(element, "your text")`
+
 
 ### Selenium (Sync)
 

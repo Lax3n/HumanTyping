@@ -1,6 +1,6 @@
 import asyncio
 from playwright.async_api import async_playwright
-from src.integration import HumanTyper
+from humantyping.integration import HumanTyper
 import os
 
 async def main():
@@ -24,9 +24,10 @@ async def main():
         print("Clicking search box...")
         await search_box.click()
         
-        print("Typing...")
+        print("Typing with realistic human behavior...")
         # Type realistically!
-        await human.type_async(search_box, "How to type like a human?")
+        await human.type(search_box, "How to type like a human?")
+
         
         # Verify value
         val = await search_box.input_value()

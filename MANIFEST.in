@@ -1,0 +1,18 @@
+include README.md
+include QUICKSTART.md
+include LICENSE
+include CONTRIBUTING.md
+include pyproject.toml
+include setup.py
+
+recursive-include humantyping *.py
+recursive-include examples *.py *.md
+
+exclude .gitignore
+exclude .python-version
+exclude main.py
+exclude uv.lock
+
+global-exclude __pycache__
+global-exclude *.py[co]
+global-exclude .DS_Store

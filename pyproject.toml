@@ -32,9 +32,9 @@ selenium = ["selenium>=4.0.0"]
 dev = ["playwright>=1.40.0", "selenium>=4.0.0"]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/HumanTyping"
-Repository = "https://github.com/yourusername/HumanTyping"
-Issues = "https://github.com/yourusername/HumanTyping/issues"
+Homepage = "https://github.com/Lax3n/HumanTyping"
+Repository = "https://github.com/Lax3n/HumanTyping"
+Issues = "https://github.com/Lax3n/HumanTyping/issues"
 
 [build-system]
 requires = ["hatchling"]

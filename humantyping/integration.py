@@ -10,13 +10,25 @@ class HumanTyper:
         self.wpm = wpm
         self.layout = layout
 
-    async def type_async(self, page_element, text):
+    async def type(self, page_element, text):
         """
-        Types text into a Playwright element (or any async object with a .type() or .press() method).
+        Types text into a Playwright element with realistic human behavior.
+        
+        This is the main method for Playwright integration. It simulates:
+        - Variable typing speed based on word complexity
+        - Realistic errors (neighbor keys, swaps)
+        - Natural corrections with backspace or arrow keys
+        - Fatigue over longer texts
         
         Args:
-            page_element: The Playwright Locator or ElementHandle.
-            text: The text to type.
+            page_element: The Playwright Locator or ElementHandle to type into.
+            text: The text to type with human-like behavior.
+            
+        Example:
+            typer = HumanTyper(wpm=70)
+            input_box = page.locator("input[name='search']")
+            await input_box.click()
+            await typer.type(input_box, "Hello world!")
         """
         # 1. Generate the realistic keystroke sequence
         typer = MarkovTyper(text, target_wpm=self.wpm, layout=self.layout)
