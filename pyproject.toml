@@ -1,0 +1,44 @@
+[project]
+name = "humantyping"
+version = "1.0.0"
+description = "The most realistic keyboard typing simulator based on Markov Chains"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "HumanTyping Contributors"}
+]
+keywords = ["typing", "simulation", "markov-chain", "automation", "playwright", "selenium"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+playwright = ["playwright>=1.40.0"]
+selenium = ["selenium>=4.0.0"]
+dev = ["playwright>=1.40.0", "selenium>=4.0.0"]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/HumanTyping"
+Repository = "https://github.com/yourusername/HumanTyping"
+Issues = "https://github.com/yourusername/HumanTyping/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = []
