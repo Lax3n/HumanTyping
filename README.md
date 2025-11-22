@@ -10,6 +10,12 @@
 
 HumanTyping models authentic human typing behavior with unprecedented accuracy, making automated typing indistinguishable from real users.
 
+## 🎬 See It In Action
+
+![Typing Demo](demotyping.gif)
+
+*Watch HumanTyping simulate realistic typing with natural speed variations, errors, and corrections.*
+
 ---
 
 ## ⚡ Quick Start (Playwright)

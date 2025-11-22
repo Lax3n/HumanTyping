@@ -108,7 +108,7 @@ class MarkovTyper:
                 self.state.current_text = self.state.current_text[:-1]
                 self.state.history.append((self.state.total_time, "BACKSPACE", self.state.current_text))
                 # On recule aussi mentalement
-                self.state.mental_cursor_pos = len(self.state.current_text)
+                # self.state.mental_cursor_pos = len(self.state.current_text)
                 return True
             
             # Si on est à la bonne longueur mais avec une erreur au milieu
