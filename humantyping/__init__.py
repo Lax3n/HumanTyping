@@ -39,7 +39,7 @@ Features
 - Support for QWERTY and AZERTY layouts
 
 For more information, see the documentation at:
-https://github.com/yourusername/HumanTyping
+https://github.com/Lax3n/HumanTyping
 """
 
 __version__ = "1.0.0"
