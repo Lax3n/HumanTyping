@@ -37,7 +37,11 @@ def demo_single_run(target_text, wpm):
     """
     Displays a detailed real-time simulation.
     """
-    print(f"\n--- Real-Time Simulation Demo: '{target_text}' (Target WPM: {wpm}) ---")
+    has_newlines = True if target_text.count("\n") > 0 else False
+    if has_newlines:
+        print(f"\n--- Real-Time Simulation Demo:\n{target_text}\n(Target WPM: {wpm}) ---")
+    else:
+        print(f"\n--- Real-Time Simulation Demo: '{target_text}' (Target WPM: {wpm}) ---")
     print("Preparing simulation...\n")
     
     # 1. Calculate trajectory instantly
@@ -49,6 +53,7 @@ def demo_single_run(target_text, wpm):
     print("-" * 40)
     
     last_time = 0.0
+    last_lines = 0
     
     for t, action, text in history:
         # Calculate delay
@@ -59,19 +64,28 @@ def demo_single_run(target_text, wpm):
         last_time = t
         
         # Visual feedback
-        # If action is arrow key, we show it
         indicator = ""
         if "ARROW" in action:
             indicator = f"   <-- {action}"
         elif "BACKSPACE" in action:
             indicator = "   <-- BACKSPACE"
             
-        # Clear line and rewrite
-        # \r return chariot, \033[K efface la fin de ligne
-        sys.stdout.write(f"\r{text}{indicator}")
+        # Clear previous multi-line block
+        if last_lines > 0:
+            # Move cursor up by the number of newlines in previous text
+            sys.stdout.write(f"\033[{last_lines}A")
+        
+        # Move to start of line and clear everything to end of screen
+        sys.stdout.write("\r\033[J")
+        
+        # Write current text snapshot
+        sys.stdout.write(f"{text}{indicator}")
         sys.stdout.flush()
         
-    print(f"\r{target_text}                                      ") 
+        # Remember how many newlines we just printed
+        last_lines = text.count("\n")
+        
+    print() # Add a final newline
     print("-" * 40)
     print(f"\nTotal Simulated Time: {total_time:.4f}s")
     
