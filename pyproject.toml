@@ -8,11 +8,22 @@ license = {text = "MIT"}
 authors = [
     {name = "HumanTyping Contributors"}
 ]
-keywords = ["typing", "simulation", "markov-chain", "automation", "playwright", "selenium"]
+keywords = [
+    "typing",
+    "simulation",
+    "markov-chain",
+    "automation",
+    "playwright",
+    "selenium",
+    "human-behavior",
+    "browser-automation",
+    "testing",
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -20,6 +31,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Testing",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Quality Assurance",
 ]
 
 dependencies = [
@@ -29,16 +41,25 @@ dependencies = [
 [project.optional-dependencies]
 playwright = ["playwright>=1.40.0"]
 selenium = ["selenium>=4.0.0"]
-dev = ["playwright>=1.40.0", "selenium>=4.0.0"]
+dev = [
+    "playwright>=1.40.0",
+    "selenium>=4.0.0",
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+]
 
 [project.urls]
+"Bug Tracker" = "https://github.com/Lax3n/HumanTyping/issues"
+"Documentation" = "https://github.com/Lax3n/HumanTyping"
+"Source Code" = "https://github.com/Lax3n/HumanTyping"
 Homepage = "https://github.com/Lax3n/HumanTyping"
-Repository = "https://github.com/Lax3n/HumanTyping"
-Issues = "https://github.com/Lax3n/HumanTyping/issues"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv]
-dev-dependencies = []
+dev-dependencies = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+]

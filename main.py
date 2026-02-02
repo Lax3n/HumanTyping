@@ -1,10 +1,18 @@
 import argparse
-import sys
 from humantyping.simulation import run_monte_carlo, demo_single_run
 
 def main():
+    typing_text = """from module import Class1
+import asyncio
+
+async def example():
+instance = Class1(
+    # keyword_arg=value,
+)
+instance.method1()
+"""
     parser = argparse.ArgumentParser(description="Keyboard Typing Simulation via Markov Chains")
-    parser.add_argument("text", nargs="?", default="Hello world", help="The text to simulate")
+    parser.add_argument("text", nargs="?", default=typing_text, help="The text to simulate")
     parser.add_argument("--mode", choices=["demo", "montecarlo"], default="demo", help="Execution mode")
     parser.add_argument("--n", type=int, default=100, help="Number of simulations for Monte Carlo")
     parser.add_argument("--wpm", type=float, default=60.0, help="Target average speed (Words Per Minute)")
