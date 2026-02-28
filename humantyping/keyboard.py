@@ -43,20 +43,20 @@ class KeyboardLayout:
         return mapping
 
     def get_neighbor_keys(self, char):
-        """Retourne les touches voisines d'un caractère donné."""
+        """Returns the neighboring keys for a given character."""
         char = char.lower()
         
-        # Gestion des cas particuliers (accents composés ramenés à leur lettre de base pour l'erreur de voisinage ?)
-        # Pour l'instant, si c'est un accent composé, on ne trouve pas de voisin direct dans la grille simple
-        # sauf si on mappe la lettre de base.
+        # Handle special cases (composed accents reduced to their base letter for neighborhood errors?)
+        # For now, if it's a composed accent, no direct neighbor is found in the simple grid
+        # unless the base letter is mapped.
         if char in self.composed_accents:
-            # On simplifie : erreur sur la lettre de base
-            # ex: ê -> e
+            # Simplifying: error on the base letter
+            # e.g. ê -> e
             import unicodedata
             char = ''.join(c for c in unicodedata.normalize('NFD', char) if unicodedata.category(c) != 'Mn')
 
         if char not in self.pos_map:
-            # Si toujours pas trouvé (ex: majuscule non gérée ou char spécial), on cherche un random
+            # If still not found (e.g. unhandled uppercase or special char), search for a random one
             return []
         
         r, c = self.pos_map[char]
@@ -76,10 +76,10 @@ class KeyboardLayout:
         return neighbors
 
     def get_distance(self, char1, char2):
-        """Calcule la distance euclidienne entre deux touches."""
-        # Normalisation pour les accents composés -> on prend la distance vers la lettre de base
-        # (car la main est déjà dans la zone) ou vers la touche morte ?
-        # Simplifions : distance vers la lettre de base.
+        """Calculates the Euclidean distance between two keys."""
+        # Normalization for composed accents -> use distance to the base letter
+        # (as the hand is already in the area) or toward the dead key?
+        # Simplifying: distance to the base letter.
         
         def normalize(c):
             if c in self.composed_accents:

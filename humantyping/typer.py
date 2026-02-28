@@ -73,80 +73,97 @@ class MarkovTyper:
         return max(0.02, dt)
 
     def step(self):
-        # 1. Vérifier si on a fini
+        # 1. Check for completion
         if self.state.current_text == self.target_text:
-            return False
+            return None
 
-        # 2. Mode Relecture (On pense avoir fini mais il y a des erreurs)
-        if self.state.mental_cursor_pos >= len(self.target_text):
-            # On a terminé mentalement, mais le texte n'est pas parfait
-            # Stratégie simple : On backspace jusqu'à trouver où ça diverge
+        # --- MONITORING & CORRECTION PHASE ---
+        
+        # Calculate divergence point
+        first_error_pos = len(self.target_text)
+        min_len = min(len(self.state.current_text), len(self.target_text))
+        for i in range(min_len):
+            if self.state.current_text[i] != self.target_text[i]:
+                first_error_pos = i
+                break
+        
+        # Also consider over-typing as an error
+        if len(self.state.current_text) > len(self.target_text) and first_error_pos == len(self.target_text):
+            first_error_pos = len(self.target_text)
+
+        # Do we have an error?
+        if first_error_pos < len(self.state.current_text):
+            should_correct = False
             
-            # Trouver la première position où ça diverge
-            first_error_pos = len(self.target_text)  # Par défaut, on suppose que c'est à la fin
-            min_len = min(len(self.state.current_text), len(self.target_text))
+            last_action = self.state.history[-1][1] if self.state.history else ""
             
-            for i in range(min_len):
-                if self.state.current_text[i] != self.target_text[i]:
-                    first_error_pos = i
-                    break
-            
-            # Si le texte actuel est trop long, on doit aussi backspace
-            if len(self.state.current_text) > len(self.target_text):
-                if first_error_pos == len(self.target_text):
-                    first_error_pos = len(self.target_text)
-            
-            # Temps de réaction : "Ah, j'ai fait une erreur"
-            if len(self.state.current_text) != first_error_pos:
-                dt = np.random.normal(TIME_REACTION_MEAN, TIME_REACTION_STD)
-                self.state.total_time += max(0.1, dt)
-            
-            # On backspace jusqu'à la position de l'erreur
-            if len(self.state.current_text) > first_error_pos:
+            # Case 0: CONTINUED BACKSPACING (Critical)
+            if "BACKSPACE" in last_action:
+                should_correct = True # Lock into backspacing until fixed
+
+            # Case A: End of text (Always correct)
+            elif self.state.mental_cursor_pos >= len(self.target_text):
+                should_correct = True
+                
+            # Case B: End of Word / Context Check
+            elif len(self.state.current_text) > 0:
+                last_char = self.state.current_text[-1]
+                distance = len(self.state.current_text) - first_error_pos
+                
+                # Check at word boundaries (Strict)
+                # Correction is mandatory at any separator to prevent error accumulation
+                if last_char in ' \n\t.,;!?:()[]{}<>"\'':
+                    should_correct = True
+                
+                # Drift Check (Don't let errors linger)
+                elif distance >= 2:
+                    # High probability to notice error as we type further away
+                    rand_value = np.random.random()
+                    if rand_value < 0.8:
+                        should_correct = True
+                    
+                # Immediate reaction (1 char past error)
+                elif distance == 1:
+                    rand_value = np.random.random()
+                    if rand_value < PROB_NOTICE_ERROR:
+                        should_correct = True
+
+            if should_correct:
+                # Reaction time check (only if we weren't already backspacing)
+                if "BACKSPACE" not in last_action:
+                     dt = np.random.normal(TIME_REACTION_MEAN, TIME_REACTION_STD)
+                     self.state.total_time += max(0.1, dt)
+                
+                # Perform Backspace
                 dt = np.random.normal(TIME_BACKSPACE_MEAN, TIME_BACKSPACE_STD)
                 self.state.total_time += dt
                 self.state.current_text = self.state.current_text[:-1]
-                self.state.history.append((self.state.total_time, "BACKSPACE", self.state.current_text))
-                # On recule aussi mentalement
-                # self.state.mental_cursor_pos = len(self.state.current_text)
-                return True
-            
-            # Si on est à la bonne longueur mais avec une erreur au milieu
-            # (ne devrait plus arriver vu qu'on backspace tout ce qui est après l'erreur)
-            # Mais au cas où, on continue à taper
-            if len(self.state.current_text) < len(self.target_text):
+                
+                step = (self.state.total_time, "BACKSPACE", self.state.current_text)
+                self.state.history.append(step)
+                
+                # Sync mental cursor immediately
                 self.state.mental_cursor_pos = len(self.state.current_text)
-                # On va retaper à l'étape suivante
+                return step
 
-        # 3. Mode Frappe Normale
-        
-        # Vérifier si on vient de faire une erreur (dernier caractère)
-        if len(self.state.current_text) > 0:
-            last_idx = len(self.state.current_text) - 1
-            if last_idx < len(self.target_text):
-                if self.state.current_text[last_idx] != self.target_text[last_idx]:
-                    # Erreur détectée immédiatement ?
-                    if np.random.random() < PROB_NOTICE_ERROR:
-                        dt = np.random.normal(TIME_BACKSPACE_MEAN, TIME_BACKSPACE_STD)
-                        self.state.total_time += max(0.02, dt)
-                        self.state.current_text = self.state.current_text[:-1]
-                        self.state.history.append((self.state.total_time, "BACKSPACE", self.state.current_text))
-                        self.state.mental_cursor_pos = len(self.state.current_text)
-                        self.state.last_char_typed = None
-                        return True
+        # --- TYPING PHASE ---
 
-        # On s'assure que le curseur mental suit le curseur physique
-        if self.state.mental_cursor_pos < len(self.state.current_text):
-            self.state.mental_cursor_pos = len(self.state.current_text)
+        # Sync mental cursor if we backspaced (redundant safety)
+        if self.state.mental_cursor_pos > len(self.state.current_text):
+             self.state.mental_cursor_pos = len(self.state.current_text)
         
-        # Ne pas dépasser le texte cible pendant la frappe normale
+        # If we are done typing but text is correct (caught by top check), or waiting for consistency
         if self.state.mental_cursor_pos >= len(self.target_text):
-            return True  # Continuer pour entrer en mode relecture au prochain step
+             # This happens if we just corrected an 'overtype' error and now we are 'at the end'
+             # The next loop will catch completion.
+             return None
 
         char_intended = self.target_text[self.state.mental_cursor_pos]
         self.state.fatigue_multiplier *= FATIGUE_FACTOR
 
-        # Swap Error
+        # Swap Error (Anticipation)
+        # Using the next char after the supposed typed char
+        # Example: "the" -> "hte". Typing 'h' instead of 't'.
         if len(self.target_text) > self.state.mental_cursor_pos + 1:
             char_after = self.target_text[self.state.mental_cursor_pos + 1]
             if char_after != ' ' and char_after != char_intended:
@@ -155,11 +172,12 @@ class MarkovTyper:
                     self.state.total_time += dt
                     self.state.current_text += char_after
                     self.state.last_char_typed = char_after
-                    self.state.history.append((self.state.total_time, f"TYPED_SWAP '{char_after}'", self.state.current_text))
+                    step = (self.state.total_time, f"TYPED_SWAP '{char_after}'", self.state.current_text)
+                    self.state.history.append(step)
                     self.state.mental_cursor_pos += 1
-                    return True
+                    return step
 
-        # Frappe normale
+        # Normal Typing (Success or Error)
         current_prob_error = PROB_ERROR
         word_diff = get_word_difficulty(self._get_current_word_context() or "")
         if word_diff == "complex": 
@@ -170,29 +188,31 @@ class MarkovTyper:
             current_prob_error *= 2.0
 
         if np.random.random() < current_prob_error:
-            # Erreur
+            # Generate Error
             wrong_char = self.keyboard.get_random_neighbor(char_intended)
             dt = self._calculate_keystroke_time(wrong_char)
             self.state.total_time += dt
             self.state.current_text += wrong_char
             self.state.last_char_typed = wrong_char
-            self.state.history.append((self.state.total_time, f"TYPED_ERROR '{wrong_char}'", self.state.current_text))
+            step = (self.state.total_time, f"TYPED_ERROR '{wrong_char}'", self.state.current_text)
+            self.state.history.append(step)
             self.state.mental_cursor_pos += 1
         else:
-            # Succès
+            # Success
             dt = self._calculate_keystroke_time(char_intended)
             self.state.total_time += dt
             self.state.current_text += char_intended
             self.state.last_char_typed = char_intended
-            self.state.history.append((self.state.total_time, f"TYPED '{char_intended}'", self.state.current_text))
+            step = (self.state.total_time, f"TYPED '{char_intended}'", self.state.current_text)
+            self.state.history.append(step)
             self.state.mental_cursor_pos += 1
             
-        return True
+        return step
 
     def run(self):
         steps = 0
         max_steps = len(self.target_text) * 10
-        while self.step():
+        while self.step() is not None:
             steps += 1
             if steps > max_steps:
                 break

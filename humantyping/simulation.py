@@ -37,7 +37,11 @@ def demo_single_run(target_text, wpm):
     """
     Displays a detailed real-time simulation.
     """
-    print(f"\n--- Real-Time Simulation Demo: '{target_text}' (Target WPM: {wpm}) ---")
+    has_newlines = True if target_text.count("\n") > 0 else False
+    if has_newlines:
+        print(f"\n--- Real-Time Simulation Demo:\n{target_text}\n(Target WPM: {wpm}) ---")
+    else:
+        print(f"\n--- Real-Time Simulation Demo: '{target_text}' (Target WPM: {wpm}) ---")
     print("Preparing simulation...\n")
     
     # 1. Calculate trajectory instantly
@@ -49,33 +53,52 @@ def demo_single_run(target_text, wpm):
     print("-" * 40)
     
     last_time = 0.0
+    current_output = ""
     
     for t, action, text in history:
         # Calculate delay
         delay = t - last_time
         if delay > 0:
             time.sleep(delay)
-            
         last_time = t
         
-        # Visual feedback
-        # If action is arrow key, we show it
-        indicator = ""
-        if "ARROW" in action:
-            indicator = f"   <-- {action}"
-        elif "BACKSPACE" in action:
-            indicator = "   <-- BACKSPACE"
+        # Differential update logic
+        if text.startswith(current_output):
+            # We added characters (Normal typing or swap)
+            new_part = text[len(current_output):]
+            sys.stdout.write(new_part)
+        elif current_output.startswith(text):
+            # We removed characters (Backspacing)
+            removed_part = current_output[len(text):]
+            for char in reversed(removed_part):
+                if char == '\n':
+                    # Move cursor up one line
+                    sys.stdout.write('\033[A')
+                    # Find the length of the line we are moving up to
+                    lines = text.split('\n')
+                    last_line_len = len(lines[-1]) if lines else 0
+                    # Move cursor to the end of that line
+                    # \033[G moves to absolute column. Using a large number or exact len
+                    sys.stdout.write(f'\033[{last_line_len + 1}G')
+                else:
+                    # Generic backspace/clear
+                    sys.stdout.write('\b \b')
+        else:
+            # Divergence (e.g. middle-string correction if implemented in future)
+            # Fallback: Clear block and redraw (rare)
+            prev_lines = current_output.count('\n')
+            if prev_lines > 0:
+                sys.stdout.write(f'\033[{prev_lines}A')
+            sys.stdout.write('\r\033[J')
+            sys.stdout.write(text)
             
-        # Clear line and rewrite
-        # \r return chariot, \033[K efface la fin de ligne
-        sys.stdout.write(f"\r{text}{indicator}")
         sys.stdout.flush()
+        current_output = text
         
-    print(f"\r{target_text}                                      ") 
-    print("-" * 40)
-    print(f"\nTotal Simulated Time: {total_time:.4f}s")
+    print("\n" + "-" * 40)
+    print(f"Total Simulated Time: {total_time:.4f}s")
     
     # Show errors
     errors = [h for h in history if "ERROR" in h[1]]
     if errors:
-        print(f"\nErrors made and corrected: {len(errors)}")
+        print(f"Errors made and corrected: {len(errors)}")
