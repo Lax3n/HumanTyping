@@ -49,3 +49,4 @@ test-results/
 # uv
 .python-version
 uv.lock
+GEMINI.md
