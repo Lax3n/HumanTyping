@@ -47,7 +47,7 @@ def main():
 
     try:
         # Create HumanTyper
-        human = HumanTyper(wpm=45)
+        human = HumanTyper(wpm=150)
 
         print("Waiting for Google Search to load...")
         time.sleep(2)

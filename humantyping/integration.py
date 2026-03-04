@@ -70,7 +70,7 @@ class HumanTyper:
 
     def type_appium(self, driver, text):
         """
-        Types text into the focused Android element using Appium's mobile: type extension.
+        Types text into the focused mobile element using W3C Actions.
         This operates at the driver level and requires the element to be focused.
         
         Args:
@@ -83,6 +83,9 @@ class HumanTyper:
             search_box.click() # Ensure focus
             typer.type_appium(driver, "Hello Appium")
         """
+        from selenium.webdriver.common.action_chains import ActionChains
+        from selenium.webdriver.common.keys import Keys
+
         typer = MarkovTyper(text, target_wpm=self.wpm, layout=self.layout)
         _, history = typer.run()
         
@@ -94,15 +97,18 @@ class HumanTyper:
                 time.sleep(delay)
             last_time = t
 
+            actions = ActionChains(driver)
             if "BACKSPACE" in action:
-                driver.keyevent(67)  # KEYCODE_DEL
+                actions.send_keys(Keys.BACK_SPACE)
             elif "ARROW_LEFT" in action:
-                driver.keyevent(21)  # KEYCODE_DPAD_LEFT
+                actions.send_keys(Keys.ARROW_LEFT)
             elif "ARROW_RIGHT" in action:
-                driver.keyevent(22)  # KEYCODE_DPAD_RIGHT
+                actions.send_keys(Keys.ARROW_RIGHT)
             elif "TYPED" in action:  # Handles TYPED, TYPED_ERROR, TYPED_SWAP
                 char = action.split("'")[1]
-                driver.execute_script('mobile: type', {'text': char})
+                actions.send_keys(char)
+            
+            actions.perform()
 
     def type_sync(self, selenium_element, text):
         """
