@@ -2,10 +2,12 @@ import time
 import asyncio
 from .typer import MarkovTyper
 
+
 class HumanTyper:
     """
-    A helper class to integrate realistic typing into automation frameworks like Playwright or Selenium.
+    A helper class to integrate realistic typing into automation frameworks like Playwright, Selenium, or Appium.
     """
+
     def __init__(self, wpm=60.0, layout="qwerty"):
         self.wpm = wpm
         self.layout = layout
@@ -13,17 +15,17 @@ class HumanTyper:
     async def type(self, page_element, text):
         """
         Types text into a Playwright element with realistic human behavior.
-        
+
         This is the main method for Playwright integration. It simulates:
         - Variable typing speed based on word complexity
         - Realistic errors (neighbor keys, swaps)
         - Natural corrections with backspace or arrow keys
         - Fatigue over longer texts
-        
+
         Args:
             page_element: The Playwright Locator or ElementHandle to type into.
             text: The text to type with human-like behavior.
-            
+
         Example:
             typer = HumanTyper(wpm=70)
             input_box = page.locator("input[name='search']")
@@ -33,7 +35,7 @@ class HumanTyper:
         # 1. Generate the realistic keystroke sequence
         typer = MarkovTyper(text, target_wpm=self.wpm, layout=self.layout)
         _, history = typer.run()
-        
+
         last_time = 0.0
         current_text_on_screen = ""
 
@@ -66,13 +68,21 @@ class HumanTyper:
             elif "ARROW_RIGHT" in action:
                 await page_element.press("ArrowRight")
 
-    def type_sync(self, selenium_element, text):
+    def type_appium(self, driver, text):
         """
-        Types text into a Selenium WebElement (or any sync object with send_keys).
-        Note: Selenium send_keys usually appends, so handling backspace might need specific keys.
-        """
-        from selenium.webdriver.common.keys import Keys
+        Types text into the focused Android element using Appium's mobile: type extension.
+        This operates at the driver level and requires the element to be focused.
         
+        Args:
+            driver: The Appium WebDriver.
+            text: The text to type.
+            
+        Example:
+            typer = HumanTyper(wpm=45)
+            search_box = driver.find_element(...)
+            search_box.click() # Ensure focus
+            typer.type_appium(driver, "Hello Appium")
+        """
         typer = MarkovTyper(text, target_wpm=self.wpm, layout=self.layout)
         _, history = typer.run()
         
@@ -85,11 +95,39 @@ class HumanTyper:
             last_time = t
 
             if "BACKSPACE" in action:
+                driver.keyevent(67)  # KEYCODE_DEL
+            elif "ARROW_LEFT" in action:
+                driver.keyevent(21)  # KEYCODE_DPAD_LEFT
+            elif "ARROW_RIGHT" in action:
+                driver.keyevent(22)  # KEYCODE_DPAD_RIGHT
+            elif "TYPED" in action:  # Handles TYPED, TYPED_ERROR, TYPED_SWAP
+                char = action.split("'")[1]
+                driver.execute_script('mobile: type', {'text': char})
+
+    def type_sync(self, selenium_element, text):
+        """
+        Types text into a Selenium WebElement (or any sync object with send_keys).
+        Note: Selenium send_keys usually appends, so handling backspace might need specific keys.
+        """
+        from selenium.webdriver.common.keys import Keys
+
+        typer = MarkovTyper(text, target_wpm=self.wpm, layout=self.layout)
+        _, history = typer.run()
+
+        last_time = 0.0
+
+        for t, action, _ in history:
+            delay = t - last_time
+            if delay > 0:
+                time.sleep(delay)
+            last_time = t
+
+            if "BACKSPACE" in action:
                 selenium_element.send_keys(Keys.BACK_SPACE)
             elif "ARROW_LEFT" in action:
                 selenium_element.send_keys(Keys.ARROW_LEFT)
             elif "ARROW_RIGHT" in action:
                 selenium_element.send_keys(Keys.ARROW_RIGHT)
-            elif "TYPED" in action: # Handles TYPED, TYPED_ERROR, TYPED_SWAP
+            elif "TYPED" in action:  # Handles TYPED, TYPED_ERROR, TYPED_SWAP
                 char = action.split("'")[1]
                 selenium_element.send_keys(char)

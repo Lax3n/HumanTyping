@@ -75,9 +75,9 @@ def main():
         print("Clicking search box...")
         search_box.click()
 
-        # Type realistically using the synchronous integration
+        # Type realistically using the specialized Appium integration
         print("Typing like a human on native Android app...")
-        human.type_sync(search_box, "Human typing on native Android")
+        human.type_appium(driver, "Human typing on native Android")
 
         print("✅ Finished typing.")
         time.sleep(2)
