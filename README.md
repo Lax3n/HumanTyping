@@ -208,12 +208,13 @@ if __name__ == "__main__":
 3. Type: `await typer.type(element, "your text")`
 
 
-### Selenium (Sync)
+### Selenium & Appium (Sync)
 
 ```python
 from selenium import webdriver
-from src.integration import HumanTyper
+from humantyping import HumanTyper
 
+# For Selenium
 driver = webdriver.Chrome()
 driver.get("https://example.com")
 
@@ -222,6 +223,12 @@ search_box = driver.find_element("name", "search")
 human.type_sync(search_box, "Typing with human-like behavior")
 
 driver.quit()
+
+# For Appium
+# from appium import webdriver
+# ... driver setup ...
+# search_field = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value='Search')
+# human.type_sync(search_field, "Typing on mobile")
 ```
 
 **The integration module handles all typing events:**
