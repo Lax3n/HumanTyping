@@ -3,7 +3,6 @@ include QUICKSTART.md
 include LICENSE
 include CONTRIBUTING.md
 include pyproject.toml
-include setup.py
 
 recursive-include humantyping *.py
 recursive-include examples *.py *.md

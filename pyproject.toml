@@ -1,6 +1,6 @@
 [project]
 name = "humantyping"
-version = "1.0.0"
+version = "1.0.2"
 description = "The most realistic keyboard typing simulator based on Markov Chains"
 readme = "README.md"
 requires-python = ">=3.10"
